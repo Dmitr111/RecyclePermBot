@@ -7,6 +7,8 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <AssemblyName>RecycleBot.Tests</AssemblyName>
+    <RootNamespace>RecycleBot.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,13 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TelegramBotC#\TelegramBotC#.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="TelegramBotC#">
-      <HintPath>..\TelegramBotC#\bin\Debug\net8.0\TelegramBotC#.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\..\src\RecycleBot\RecycleBot.csproj" />
   </ItemGroup>
 
   <ItemGroup>

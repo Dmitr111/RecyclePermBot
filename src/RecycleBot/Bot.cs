@@ -10,7 +10,7 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace TelegramBot
+namespace RecycleBot
 {
     public class Bot
     {
@@ -22,8 +22,27 @@ namespace TelegramBot
 
         static void Main()
         {
-            #Токен бота у @BotFather
-            ITelegramBotClient botClient = new TelegramBotClient("7123456789:AAFxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+            // Вывод кириллицы в консоль в любом терминале
+            Console.OutputEncoding = Encoding.UTF8;
+
+            // Загрузка настроек (токен бота у @BotFather, ключи API Яндекса, ID администратора)
+            AppConfig config;
+            try
+            {
+                config = AppConfig.Load();
+            }
+            catch (InvalidOperationException exception)
+            {
+                Console.Error.WriteLine(exception.Message);
+                Environment.Exit(1);
+                return;
+            }
+
+            staticApiKey = config.YandexStaticApiKey;
+            organizationSearchApiKey = config.YandexSearchApiKey;
+            adminChatId = config.AdminChatId;
+
+            ITelegramBotClient botClient = new TelegramBotClient(config.TelegramBotToken);
 
             Console.WriteLine("Запущен бот: " + botClient.GetMeAsync().Result.FirstName);
 
@@ -78,7 +97,7 @@ namespace TelegramBot
             {
                 var botClient = (ITelegramBotClient)state;
 
-                if (running)
+                if (running && System.IO.File.Exists(filePath))
                 {
                     // Чтение списка пользователей из файла
                     string fileContent = System.IO.File.ReadAllText(filePath);
@@ -107,8 +126,11 @@ namespace TelegramBot
             }
         }
 
-        private static readonly string staticApiKey = "***REMOVED_YANDEX_STATIC_API_KEY***";
-        private static readonly string organizationSearchApiKey = "***REMOVED_YANDEX_SEARCH_API_KEY***";
+        // Значения задаются в Main из конфигурации
+        private static string staticApiKey = "";
+        private static string organizationSearchApiKey = "";
+        private static long? adminChatId;
+
         private static readonly string filePath = "users.json";
 
         private static double latitude;
@@ -116,8 +138,10 @@ namespace TelegramBot
         private static bool isSendingСoordinates = false;
 
         // Создание списка пользователей
-        private static string fileContent = System.IO.File.ReadAllText(filePath);
-        private static List<TelegramUser> users = JsonConvert.DeserializeObject<List<TelegramUser>>(fileContent);
+        // Если файла ещё нет (первый запуск), список создастся в CheckUsers
+        private static List<TelegramUser>? users = System.IO.File.Exists(filePath)
+            ? JsonConvert.DeserializeObject<List<TelegramUser>>(System.IO.File.ReadAllText(filePath))
+            : null;
         private static TelegramUser? user;
 
         // Клавиатура для выбора типа отходов
@@ -233,7 +257,7 @@ namespace TelegramBot
                                         if (update.Message.Text.ToLower().Contains("help"))
                                         {
                                             await botClient.SendTextMessageAsync(update.Message.Chat.Id, "\n/help - вывести список команд\n/start - начать/перезапустить бота\n/data - вывести профиль и выбранные настройки" +
-                                                "\nЕсли у вас возникили вопросы, то @removed_contact и @All3bar1 всегда готовы вам помочь. Также будем рады получить обратную связь.");
+                                                "\nЕсли у вас возникли вопросы, то @All3bar1 всегда готов вам помочь. Также будем рады получить обратную связь.");
 
                                             return;
                                         }
@@ -304,7 +328,7 @@ namespace TelegramBot
                                         }
 
                                         // Рассылка
-                                        if (update.Message.Chat.Id == 1178725484 && update.Message.Text.ToCharArray()[update.Message.Text.ToCharArray().Length - 1] == '$' && update.Message.Text.ToCharArray()[0] == '$')
+                                        if (adminChatId != null && update.Message.Chat.Id == adminChatId && update.Message.Text.ToCharArray()[update.Message.Text.ToCharArray().Length - 1] == '$' && update.Message.Text.ToCharArray()[0] == '$')
                                         {
                                             // Чтение списка пользователей из файла
                                             string fileContent = System.IO.File.ReadAllText(filePath);
@@ -314,7 +338,7 @@ namespace TelegramBot
 
                                             foreach (var user in loadedUsers)
                                             {
-                                                if (user.ChatId != 1178725484)
+                                                if (user.ChatId != adminChatId)
                                                 {
                                                     await botClient.SendTextMessageAsync(user.ChatId, massage);
                                                     Console.WriteLine($"Рассылочное сообщение успешно отправлено пользователю с Chat ID: {user.ChatId}");
@@ -383,7 +407,7 @@ namespace TelegramBot
                                     {
                                         await botClient.SendTextMessageAsync(update.CallbackQuery.Message.Chat.Id, "\n/help - вывести список доступных команд.\n/start - начать/перезапустить бота." +
                                             "\n/start - получить метками пунктов утилизации отходов.\n/data - вывести профиль и выбранные настройки.\n" +
-                                            "Если что у вас всегда есть @removed_contact и @All3bar1 - 2 человека готовых вам помочь. Будем рады получить обратную связь или помочь вам с возникшей проблемой");
+                                            "Если что-то пошло не так, пишите @All3bar1: он всегда готов вам помочь. Будем рады получить обратную связь или помочь вам с возникшей проблемой");
 
                                         break;
                                     }

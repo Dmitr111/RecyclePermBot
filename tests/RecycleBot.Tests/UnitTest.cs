@@ -1,4 +1,4 @@
-namespace TelegramBot.Tests
+п»їnamespace RecycleBot.Tests
 {
     [TestClass]
     public class UnitTest
@@ -23,7 +23,7 @@ namespace TelegramBot.Tests
             var user = new TelegramUser(123);
 
             // Act
-            var actual = "Пластик";
+            var actual = "РџР»Р°СЃС‚РёРє";
             user.ChangeSelectedTypeWaste(actual);
 
             // Assert
@@ -56,7 +56,7 @@ namespace TelegramBot.Tests
             var user = new TelegramUser(123);
 
             // Act
-            var actual = "Металлолом";
+            var actual = "РњРµС‚Р°Р»Р»РѕР»РѕРј";
             user.IncrementRequestCount(actual);
 
             // Assert

@@ -1,4 +1,4 @@
-﻿namespace TelegramBot
+﻿namespace RecycleBot
 {
     public class TelegramUser
     {
