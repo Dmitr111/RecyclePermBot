@@ -22,7 +22,8 @@ namespace TelegramBot
 
         static void Main()
         {
-            ITelegramBotClient botClient = new TelegramBotClient("***REMOVED_TELEGRAM_BOT_TOKEN***");
+            #Токен бота у @BotFather
+            ITelegramBotClient botClient = new TelegramBotClient("7123456789:AAFxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 
             Console.WriteLine("Запущен бот: " + botClient.GetMeAsync().Result.FirstName);
 
